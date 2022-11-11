@@ -8,11 +8,7 @@ export default function DeleteButtonRenderer(props) {
     
     const buttonClicked = () => {
         if (window.confirm('Are you sure?')){
-            console.log(props)
-       //     fetch(link, {method: 'DELETE'})
-       //     .then(res => fetchData())
-       //     .catch(err => console.error(err))
-            props.deleteCar();
+            props.context[1](link);
         }
     };
  

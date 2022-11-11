@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { AgGridReact } from'ag-grid-react'
 import'ag-grid-community/dist/styles/ag-grid.css'
 import'ag-grid-community/dist/styles/ag-theme-material.css';
-import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Addcar from "./Addcar";
 import Editcar from "./Editcar";
+import DeleteCarButton from './DeleteCarButton'
 
 
 export default function Carlist() {
@@ -40,58 +40,34 @@ export default function Carlist() {
     }
 
     const updateCar = (car, link) => {
-        console.log("täällä ollaan")
-       /* fetch(link, {
+        fetch(link, {
             method: 'PUT',
             headers: {
                 'Content-type': 'application/json'
             },
             body: JSON.stringify(car)
         })
-        .then.apply(res => fetchData())
-        .catch(err => console.error(err))*/
+        .then(res => fetchData())
+        .catch(err => console.error(err))
     }
 
-    /* DELETE car button omassa componentti testi
-    const deleteCar = () => {
+    
+    const deleteCar = (link) => {
         fetch(link, {method: 'DELETE'})
         .then(res => fetchData())
         .catch(err => console.error(err))
         setOpen(true);
     }
-*/
+
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
             return;
         }
-
         setOpen(false);
     };
 
 
-    const DeleteButtonRenderer = (props) => {
-  
-        const link = props.value;
-        
-        
-        const buttonClicked = () => {
-            if (window.confirm('Are you sure?')){
-                fetch(link, {method: 'DELETE'})
-                .then(res => fetchData())
-                .catch(err => console.error(err))
-                setOpen(true);
-            }
-        };
-
-     
-        return (
-          <span>
-            <Button variant="contained" color="error" size="small" onClick={() => buttonClicked()}>Delete</Button>
-          </span>
-        );
-    };
-  
     const [columns] = useState([
         { field: 'brand', filter: true, sortable: true },
         {field: 'model', filter: true, sortable: true },
@@ -100,7 +76,7 @@ export default function Carlist() {
         { field: 'year', filter: true, sortable: true },
         { field: 'price', sortable: true },
         { field: '_links.self.href', headerName: 'Edit', cellRenderer: Editcar, width: 100 },
-        { field: '_links.self.href', headerName: 'Delete', cellRenderer: DeleteButtonRenderer, cellRendererParams: 'updateCar', width: 100 }
+        { field: '_links.self.href', headerName: 'Delete', cellRenderer: DeleteCarButton, width: 100 }
 
     ]);
    
@@ -127,7 +103,9 @@ export default function Carlist() {
             <Addcar saveCar={saveCar} />
             <AgGridReact
                 rowData={cars}
-                columnDefs={columns}>
+                columnDefs={columns}
+                context={[updateCar, deleteCar]}
+                >
             </AgGridReact>
             <Snackbar
                 open={open}
