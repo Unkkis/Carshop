@@ -2,19 +2,18 @@ import React, { useState, useEffect } from "react";
 import { AgGridReact } from'ag-grid-react'
 import'ag-grid-community/dist/styles/ag-grid.css'
 import'ag-grid-community/dist/styles/ag-theme-material.css';
-import Snackbar from '@mui/material/Snackbar';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
 import Addcar from "./Addcar";
 import Editcar from "./Editcar";
 import DeleteCarButton from './DeleteCarButton'
+import SnackbarRenderer from "./SnackbarRenderer";
 
 
 export default function Carlist() {
+   
     const [cars, setCars] = useState([]);
-
     const [isReady, setReady] = useState(false);
     const [open, setOpen] = useState(false);
+    const [message, setMessage] = useState('');
     
     useEffect(() => fetchData(), []);
   
@@ -37,6 +36,8 @@ export default function Carlist() {
         })
         .then(res => fetchData())
         .catch(err => console.error(err))
+        setMessage("New car added");
+        setOpen(true);
     }
 
     const updateCar = (car, link) => {
@@ -49,6 +50,8 @@ export default function Carlist() {
         })
         .then(res => fetchData())
         .catch(err => console.error(err))
+        setMessage("Car details Updated");
+        setOpen(true);
     }
 
     
@@ -56,9 +59,9 @@ export default function Carlist() {
         fetch(link, {method: 'DELETE'})
         .then(res => fetchData())
         .catch(err => console.error(err))
+        setMessage("Car Deleted");
         setOpen(true);
     }
-
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -67,7 +70,6 @@ export default function Carlist() {
         setOpen(false);
     };
 
-
     const [columns] = useState([
         { field: 'brand', filter: true, sortable: true },
         {field: 'model', filter: true, sortable: true },
@@ -75,45 +77,26 @@ export default function Carlist() {
         { field: 'fuel', filter: true, sortable: true },
         { field: 'year', filter: true, sortable: true },
         { field: 'price', sortable: true },
-        { field: '_links.self.href', headerName: 'Edit', cellRenderer: Editcar, width: 100 },
-        { field: '_links.self.href', headerName: 'Delete', cellRenderer: DeleteCarButton, width: 100 }
+        { field: '_links.self.href', headerName: 'Edit', cellRenderer: row => <Editcar updateCar={updateCar} car={row.data}/>, width: 100 },
+        { field: '_links.self.href', headerName: 'Delete', cellRenderer: row => <DeleteCarButton deleteCar={deleteCar} link={row.data._links.self.href} />, width: 100 }
 
     ]);
    
-    const action = (
-        <React.Fragment>
-          <IconButton
-            size="small"
-            aria-label="close"
-            color="inherit"
-            onClick={handleClose}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </React.Fragment>
-      );
-   
+  
     if (!isReady){
         return <p>Loading....</p>
     }
     else {
     return (
         
-        <div className="ag-theme-material" style={{height: '700px', width: '80%', margin: 'auto'}}>
+        <div className="ag-theme-material" style={{height: '700px', width: '100%', margin: 'auto'}}>
             <Addcar saveCar={saveCar} />
             <AgGridReact
                 rowData={cars}
                 columnDefs={columns}
-                context={[updateCar, deleteCar]}
                 >
             </AgGridReact>
-            <Snackbar
-                open={open}
-                autoHideDuration={6000}
-                onClose={handleClose}
-                message="Car deleted!"
-                action={action}
-            />
+            <SnackbarRenderer open={open} handleClose={handleClose} message={message}  />
         </div>
         
     );

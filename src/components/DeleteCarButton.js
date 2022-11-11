@@ -3,12 +3,12 @@ import Button from '@mui/material/Button';
 
 export default function DeleteButtonRenderer(props) {
   
-    const link = props.value;
+    const link = props.link;
     
     
     const buttonClicked = () => {
         if (window.confirm('Are you sure?')){
-            props.context[1](link);
+          props.deleteCar(link);
         }
     };
  

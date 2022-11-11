@@ -14,7 +14,7 @@ export default function Addcar(props) {
     });
 
     const handleClickOpen = () => {
-        setCar({brand: props.data.brand, model: props.data.model, color: props.data.color, fuel: props.data.fuel, year: props.data.year, price: props.data.price})
+        setCar({brand: props.car.brand, model: props.car.model, color: props.car.color, fuel: props.car.fuel, year: props.car.year, price: props.car.price})
         setOpen(true);
     };
     
@@ -27,7 +27,7 @@ export default function Addcar(props) {
     }
 
     const updateCar = () => {
-        props.context[0](car, props.data._links.car.href);
+        props.updateCar(car, props.car._links.car.href);
         handleClose();
     }
 
